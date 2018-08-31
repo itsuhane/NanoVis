@@ -1,7 +1,47 @@
 #include <nanovis/nanovis.h>
+#include <unordered_set>
 #include "window.h"
 
 using namespace nanovis;
+
+namespace nanovis {
+
+class NanoVisSystem {
+    NanoVisSystem() {
+        nanogui::init();
+    }
+    ~NanoVisSystem() {
+        nanogui::shutdown();
+    }
+    std::unordered_set<NanoVis*> vises;
+public:
+    static NanoVisSystem &system() {
+        static NanoVisSystem sys;
+        return sys;
+    }
+
+    void register_vis(NanoVis *vis) {
+        vises.insert(vis);
+    }
+
+    void unregister_vis(NanoVis *vis) {
+        vises.erase(vis);
+    }
+
+    void broadcast(NanoVis *vis, const void *obj) {
+        for(NanoVis *other_vis : vises) {
+            if(other_vis!=vis) {
+                other_vis->broadcast(obj, false);
+            }
+        }
+    }
+
+    void main(int interval) {
+        nanogui::mainloop(interval);
+    }
+};
+
+}
 
 struct NanoVis::NanoVisImpl {
     class Bridge : public NanoVisWindow {
@@ -18,11 +58,14 @@ struct NanoVis::NanoVisImpl {
 };
 
 NanoVis::NanoVis(const std::string &title, int width, int height) {
+    NanoVisSystem::system().register_vis(this);
     impl = std::make_unique<NanoVisImpl>();
     impl->window = std::make_unique<NanoVisImpl::Bridge>(this, title, width, height);
 }
 
-NanoVis::~NanoVis() = default;
+NanoVis::~NanoVis() {
+    NanoVisSystem::system().unregister_vis(this);
+}
 
 void NanoVis::show() {
     impl->window->show();
@@ -91,6 +134,13 @@ float NanoVis::world_scale() const {
 void NanoVis::draw() {
 }
 
-void NanoVis::broadcast(const void *value) {
+void NanoVis::broadcast(const void *value, bool global) {
     impl->window->broadcast(value);
+    if(global) {
+        NanoVisSystem::system().broadcast(this, value);
+    }
+}
+
+void nanovis::main(int interval) {
+    NanoVisSystem::system().main(interval);
 }

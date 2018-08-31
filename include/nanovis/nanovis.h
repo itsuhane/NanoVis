@@ -47,8 +47,11 @@ protected:
     virtual void draw();
 
 private:
-    void broadcast(const void *value);
+    void broadcast(const void *value, bool global = true);
     std::unique_ptr<NanoVisImpl> impl;
+    friend class NanoVisSystem;
 };
+
+void main(int interval = 50);
 
 }

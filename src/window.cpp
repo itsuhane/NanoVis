@@ -8,7 +8,6 @@
 using namespace nanogui;
 
 NanoVisWindow::NanoVisWindow(const std::string &title, int width, int height) {
-    nanogui::init();
     m_screen = new NanoVisScreen(this, Vector2i(width, height), title);
 
     viewport_ryp = {0, -45, -42};
@@ -16,15 +15,12 @@ NanoVisWindow::NanoVisWindow(const std::string &title, int width, int height) {
     viewport_scale = 1.0;
 }
 
-NanoVisWindow::~NanoVisWindow() {
-    nanogui::shutdown();
-}
+NanoVisWindow::~NanoVisWindow() = default;
 
 void NanoVisWindow::show() {
     m_screen->setVisible(true);
     m_screen->performLayout();
     refresh();
-    mainloop(1);
 }
 
 void NanoVisWindow::refresh() {
