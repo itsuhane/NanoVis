@@ -175,14 +175,17 @@ struct NanoVis::NanoVisImpl {
             Eigen::Matrix<float, 3, 10> cursor_points;
             Eigen::Matrix<float, 3, 10> cursor_colors;
             Eigen::Vector3f p = pickup_point();
-            cursor_points.col(0) = Eigen::Vector3f(p.x() - 0.1, p.y() - 0.1, 0.5);
-            cursor_points.col(1) = Eigen::Vector3f(p.x() - 0.1, p.y() + 0.1, 0.5);
-            cursor_points.col(2) = Eigen::Vector3f(p.x() - 0.1, p.y() + 0.1, 0.5);
-            cursor_points.col(3) = Eigen::Vector3f(p.x() + 0.1, p.y() + 0.1, 0.5);
-            cursor_points.col(4) = Eigen::Vector3f(p.x() + 0.1, p.y() + 0.1, 0.5);
-            cursor_points.col(5) = Eigen::Vector3f(p.x() + 0.1, p.y() - 0.1, 0.5);
-            cursor_points.col(6) = Eigen::Vector3f(p.x() + 0.1, p.y() - 0.1, 0.5);
-            cursor_points.col(7) = Eigen::Vector3f(p.x() - 0.1, p.y() - 0.1, 0.5);
+            double t = glfwGetTime();
+            double cs = cos(t) * 0.1;
+            double ss = sin(t) * 0.1;
+            cursor_points.col(0) = Eigen::Vector3f(p.x() + cs, p.y() + ss, 0.5);
+            cursor_points.col(1) = Eigen::Vector3f(p.x() - ss, p.y() + cs, 0.5);
+            cursor_points.col(2) = Eigen::Vector3f(p.x() - ss, p.y() + cs, 0.5);
+            cursor_points.col(3) = Eigen::Vector3f(p.x() - cs, p.y() - ss, 0.5);
+            cursor_points.col(4) = Eigen::Vector3f(p.x() - cs, p.y() - ss, 0.5);
+            cursor_points.col(5) = Eigen::Vector3f(p.x() + ss, p.y() - cs, 0.5);
+            cursor_points.col(6) = Eigen::Vector3f(p.x() + ss, p.y() - cs, 0.5);
+            cursor_points.col(7) = Eigen::Vector3f(p.x() + cs, p.y() + ss, 0.5);
             cursor_points.col(8) = Eigen::Vector3f(p.x(), p.y(), 0.0);
             cursor_points.col(9) = Eigen::Vector3f(p.x(), p.y(), 0.5);
             for (size_t i = 0; i < 10; ++i) {
