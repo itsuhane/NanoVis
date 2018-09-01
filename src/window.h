@@ -55,6 +55,8 @@ class NanoVisWindow {
     Eigen::Matrix4f world_matrix() const;
     float world_scale() const;
 
+    const Eigen::Vector3f &pickup_point() const;
+
   protected:
     nanogui::AdvancedGridLayout *layout(const std::string &title);
     virtual void draw();
@@ -68,6 +70,7 @@ class NanoVisWindow {
 
   private:
     Eigen::Vector2i viewport_cursor_old;
+    Eigen::Vector3f viewport_pickup_point;
     Eigen::Vector3f viewport_xyz, viewport_xyz_old;
     Eigen::Vector3f viewport_ryp, viewport_ryp_old;
     float viewport_scale;

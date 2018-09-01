@@ -13,6 +13,8 @@ NanoVisWindow::NanoVisWindow(const std::string &title, int width, int height) {
     viewport_ryp = {0, -45, -42};
     viewport_xyz = {-8, -8, 8};
     viewport_scale = 1.0;
+
+    viewport_pickup_point = {0, 0, 0};
 }
 
 NanoVisWindow::~NanoVisWindow() = default;
@@ -234,6 +236,18 @@ bool NanoVisWindow::mouseButtonEvent(const Vector2i &p, int button, bool down, i
     viewport_ryp_old = viewport_ryp;
     viewport_cursor_old = p;
     if (down) {
+        Eigen::Matrix4f mvp = proj_matrix(0.01, 1000.0) * view_matrix() * world_matrix();
+        Eigen::Vector4f proj_point(2.0 * p.x() / width() - 1.0, 1.0 - 2.0 * p.y() / height(), 1.0, 1.0);
+        Eigen::Vector3f world_point = (mvp.inverse() * proj_point).hnormalized();
+        double lambda = viewport_xyz.z() / (viewport_xyz.z() - world_point.z());
+        viewport_pickup_point = viewport_xyz + lambda * (world_point - viewport_xyz);
+        if (viewport_pickup_point.allFinite()) {
+            viewport_pickup_point.x() = std::min(std::max(viewport_pickup_point.x(), -10.0f), 10.0f);
+            viewport_pickup_point.y() = std::min(std::max(viewport_pickup_point.y(), -10.0f), 10.0f);
+            viewport_pickup_point.z() = 0.0f;
+        } else {
+            viewport_pickup_point.setZero();
+        }
         if (button == 0) {
             viewport_translation_mode = true;
             viewport_rotation_mode = false;
@@ -320,6 +334,10 @@ Eigen::Matrix4f NanoVisWindow::world_matrix() const {
 
 float NanoVisWindow::world_scale() const {
     return viewport_scale;
+}
+
+const Eigen::Vector3f &NanoVisWindow::pickup_point() const {
+    return viewport_pickup_point;
 }
 
 void NanoVisWindow::broadcast(const void *value) {

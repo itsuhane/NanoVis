@@ -91,8 +91,8 @@ struct NanoVis::NanoVisImpl {
 
       protected:
         void create_world_frame() {
-            world_box_points.resize(3, 90 + 24);
-            world_box_colors.resize(3, 90 + 24);
+            world_box_points.resize(3, 114);
+            world_box_colors.resize(3, 114);
             for (int i = -10; i <= 10; ++i) {
                 if (i != 0) {
                     world_box_points.col((i + 10) * 4 + 0) = Eigen::Vector3f(i, -10, 0);
@@ -159,6 +159,7 @@ struct NanoVis::NanoVisImpl {
             shader.setUniform("scale", 1.0);
             glEnable(GL_DEPTH_TEST);
             draw_world_frame();
+            draw_pickup_point();
             shader.setUniform("scale", world_scale());
             draw_point_clouds();
             vis->draw();
@@ -168,6 +169,28 @@ struct NanoVis::NanoVisImpl {
             shader.uploadAttrib("point", world_box_points);
             shader.uploadAttrib("color", world_box_colors);
             shader.drawArray(GL_LINES, 0, world_box_points.cols());
+        }
+
+        void draw_pickup_point() {
+            Eigen::Matrix<float, 3, 10> cursor_points;
+            Eigen::Matrix<float, 3, 10> cursor_colors;
+            Eigen::Vector3f p = pickup_point();
+            cursor_points.col(0) = Eigen::Vector3f(p.x() - 0.1, p.y() - 0.1, 0.5);
+            cursor_points.col(1) = Eigen::Vector3f(p.x() - 0.1, p.y() + 0.1, 0.5);
+            cursor_points.col(2) = Eigen::Vector3f(p.x() - 0.1, p.y() + 0.1, 0.5);
+            cursor_points.col(3) = Eigen::Vector3f(p.x() + 0.1, p.y() + 0.1, 0.5);
+            cursor_points.col(4) = Eigen::Vector3f(p.x() + 0.1, p.y() + 0.1, 0.5);
+            cursor_points.col(5) = Eigen::Vector3f(p.x() + 0.1, p.y() - 0.1, 0.5);
+            cursor_points.col(6) = Eigen::Vector3f(p.x() + 0.1, p.y() - 0.1, 0.5);
+            cursor_points.col(7) = Eigen::Vector3f(p.x() - 0.1, p.y() - 0.1, 0.5);
+            cursor_points.col(8) = Eigen::Vector3f(p.x(), p.y(), 0.0);
+            cursor_points.col(9) = Eigen::Vector3f(p.x(), p.y(), 0.5);
+            for (size_t i = 0; i < 10; ++i) {
+                cursor_colors.col(i) = Eigen::Vector3f(0.0, 1.0, 1.0);
+            }
+            shader.uploadAttrib("point", cursor_points);
+            shader.uploadAttrib("color", cursor_colors);
+            shader.drawArray(GL_LINES, 0, cursor_points.cols());
         }
 
         void draw_point_clouds() {
