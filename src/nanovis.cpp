@@ -43,16 +43,80 @@ public:
 
 }
 
+#define glsl_code(str) "#version 330\n" #str
+
 struct NanoVis::NanoVisImpl {
+
+    struct VcPointCloud {
+        Eigen::Matrix<float, 3, Eigen::Dynamic> points;
+        Eigen::Matrix<float, 3, Eigen::Dynamic> colors;
+    };
+
     class Bridge : public NanoVisWindow {
     public:
-        Bridge(NanoVis *vis, const std::string &title, int width, int height) : NanoVisWindow(title, width, height), vis(vis) {}
+        Bridge(NanoVis *vis, const std::string &title, int width, int height) : NanoVisWindow(title, width, height), vis(vis) {
+            shader.init("vc_shader",
+                  glsl_code(
+                      uniform mat4 model_view_proj;
+                      uniform float scale;
+                      in vec3 point;
+                      in vec3 color;
+                      out vec3 c;
+                      void main() {
+                          c = color;
+                          gl_Position = model_view_proj * vec4(scale * point, 1.0);
+                      }),
+                  glsl_code(
+                      in vec3 c;
+                      out vec4 color;
+                      void main() {
+                          color = vec4(c, 1.0);
+                      }));
+        }
+
+        void add_point_cloud(std::vector<Eigen::Vector3f> &points) {
+            point_clouds[&points] = {};
+            add_variable(points, [this, &points]() {
+                VcPointCloud &vcpcl = point_clouds.at(&points);
+                vcpcl.points.resize(3, points.size());
+                vcpcl.colors.resize(3, points.size());
+                for(size_t i = 0; i < points.size(); ++i) {
+                    vcpcl.points.col(i) = points[i];
+                    vcpcl.colors.col(i) = Eigen::Vector3f(1.0, 1.0, 0.0);
+                }
+            });
+        }
+
     protected:
         void draw() override {
+            Eigen::Matrix4f mvpmat = proj_matrix(0.01, 1000) * view_matrix() * world_matrix();
+            shader.bind();
+            shader.setUniform("model_view_proj", mvpmat);
+            shader.setUniform("scale", 1.0);
+            draw_world_plane();
+            shader.setUniform("scale", world_scale());
+            draw_point_clouds();
             vis->draw();
         }
 
+        void draw_world_plane() {
+
+        }
+
+        void draw_point_clouds() {
+            glPointSize(5.0);
+            for(const auto &vcpcl : point_clouds) {
+                if(vcpcl.second.points.cols() > 0) {
+                    shader.uploadAttrib("point", vcpcl.second.points);
+                    shader.uploadAttrib("color", vcpcl.second.colors);
+                    shader.drawArray(GL_POINTS, 0, vcpcl.second.points.cols());
+                }
+            }
+        }
+
         NanoVis *vis;
+        nanogui::GLShader shader;
+        std::unordered_map<std::vector<Eigen::Vector3f>*, VcPointCloud> point_clouds;
     };
     std::unique_ptr<Bridge> window;
 };
@@ -109,6 +173,10 @@ void NanoVis::add_graph(const std::string &title, const std::string &name, std::
 
 void NanoVis::add_image(const std::string &title, const std::string &name, cv::Mat &image) {
     impl->window->add_image(title, name, image);
+}
+
+void NanoVis::add_point_cloud(std::vector<Eigen::Vector3f> &points) {
+    impl->window->add_point_cloud(points);
 }
 
 Eigen::Matrix4f NanoVis::proj_matrix(float near, float far) const {

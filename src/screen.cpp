@@ -13,6 +13,7 @@ void NanoVisScreen::drawAll() {
 }
 
 void NanoVisScreen::drawContents() {
+    glfwMakeContextCurrent(mGLFWWindow);
     window->draw();
 }
 

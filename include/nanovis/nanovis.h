@@ -32,6 +32,7 @@ public:
 
     void add_image(const std::string &title, const std::string &name, cv::Mat &image);
 
+    void add_point_cloud(std::vector<Eigen::Vector3f> &points);
     template <typename T>
     void notify(const T &value) {
         broadcast((const void *)(&value));

@@ -202,6 +202,11 @@ void NanoVisWindow::add_widget(const std::string &title, Widget *widget_left, Wi
     }
 }
 
+void NanoVisWindow::subscribe(void *value, const std::function<void()> &subscriber) {
+    subscriber();
+    m_subscribers[value][m_screen.get()] = subscriber;
+}
+
 Window *NanoVisWindow::panel(const std::string &title) {
     if (m_panels.count(title) == 0) {
         AdvancedGridLayout *l = new AdvancedGridLayout({60, 3, 120}, {});

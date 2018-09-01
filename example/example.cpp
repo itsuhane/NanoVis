@@ -4,16 +4,26 @@ double shared_value = 0.5;
 
 class Example : public nanovis::NanoVis {
     double value;
+    std::vector<Eigen::Vector3f> points;
 public:
-    Example() : NanoVis("NanoVis Example") {
+    Example() : NanoVis("NanoVis Example", 400, 400) {
         value = 0.5; // don't start with 0 or 1 :P
+        points.resize(100);
+        for(auto & p: points) {
+            p.setRandom();
+        }
 
         add_graph("Panel B", "value", value, 1.0, 0.0);
         add_graph("Panel B", "shared value", shared_value, 1.0, 0.0);
+        add_point_cloud(points);
 
         add_button("Panel A", "Button A", [this]() {
             value = 3.772 * value * (1-value); // generate some chaos by logistic map
             notify(value); // this refreshes all widgets who are observing value
+            for(auto & p: points) {
+                p.setRandom();
+            }
+            notify(points);
         });
 
         add_repeat("Panel A", "Button B", [this]() {

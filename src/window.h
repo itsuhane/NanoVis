@@ -38,16 +38,21 @@ class NanoVisWindow {
     nanogui::Window *panel(const std::string &title);
 
     template <typename T>
+    void add_variable(T &value, const std::function<void()> &handler) {
+        subscribe((void *)(&value), handler);
+    }
+
+    template <typename T>
     void notify(const T &value) {
         broadcast((const void *)(&value));
     }
 
+    void subscribe(void *value, const std::function<void()> &subscriber);
     void broadcast(const void *value);
 
     Eigen::Matrix4f proj_matrix(float near, float far) const;
     Eigen::Matrix4f view_matrix() const;
     Eigen::Matrix4f world_matrix() const;
-    //Eigen::Matrix4f model_view_proj() const;
     float world_scale() const;
 
   protected:
