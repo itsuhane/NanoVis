@@ -5,11 +5,13 @@ double shared_value = 0.5;
 class Example : public nanovis::NanoVis {
     double value;
     std::vector<Eigen::Vector3f> points;
-public:
-    Example() : NanoVis("NanoVis Example", 400, 400) {
+
+  public:
+    Example() :
+        NanoVis("NanoVis Example", 1280, 720) {
         value = 0.5; // don't start with 0 or 1 :P
         points.resize(100);
-        for(auto & p: points) {
+        for (auto& p : points) {
             p.setRandom();
         }
 
@@ -18,24 +20,24 @@ public:
         add_point_cloud(points);
 
         add_button("Panel A", "Button A", [this]() {
-            value = 3.772 * value * (1-value); // generate some chaos by logistic map
-            notify(value); // this refreshes all widgets who are observing value
-            for(auto & p: points) {
+            value = 3.772 * value * (1 - value); // generate some chaos by logistic map
+            notify(value);                       // this refreshes all widgets who are observing value
+            for (auto& p : points) {
                 p.setRandom();
             }
             notify(points);
         });
 
         add_repeat("Panel A", "Button B", [this]() {
-            value = 3.772 * value * (1-value);
+            value = 3.772 * value * (1 - value);
             notify(value);
             return true; // returning false can force repeat to end
         });
 
         static bool is_first_window = true;
-        if(is_first_window) {
+        if (is_first_window) {
             add_repeat("Panel A", "Button C", [this]() {
-                shared_value = 3.772 * shared_value * (1-shared_value);
+                shared_value = 3.772 * shared_value * (1 - shared_value);
                 notify(shared_value);
                 return true; // returning false can force repeat to end
             });

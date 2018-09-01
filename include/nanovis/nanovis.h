@@ -10,7 +10,7 @@ namespace nanovis {
 
 class NanoVis {
     struct NanoVisImpl; // pimpl
-public:
+  public:
     NanoVis(const std::string &title = "NanoVis", int width = 1280, int height = 720);
     virtual ~NanoVis();
 
@@ -33,6 +33,8 @@ public:
     void add_image(const std::string &title, const std::string &name, cv::Mat &image);
 
     void add_point_cloud(std::vector<Eigen::Vector3f> &points);
+    void add_line_strip(std::vector<Eigen::Vector3f> &vertices);
+
     template <typename T>
     void notify(const T &value) {
         broadcast((const void *)(&value));
@@ -44,10 +46,10 @@ public:
     Eigen::Matrix4f model_view_proj() const;
     float world_scale() const;
 
-protected:
+  protected:
     virtual void draw();
 
-private:
+  private:
     void broadcast(const void *value, bool global = true);
     std::unique_ptr<NanoVisImpl> impl;
     friend class NanoVisSystem;
@@ -55,4 +57,4 @@ private:
 
 void main(int interval = 50);
 
-}
+} // namespace nanovis
