@@ -8,7 +8,7 @@ class Example : public nanovis::NanoVis {
 
   public:
     Example() :
-        NanoVis("NanoVis Example", 1280, 720) {
+        NanoVis("NanoVis Example", 500, 500) {
         value = 0.5; // don't start with 0 or 1 :P
         points.resize(100);
         for (auto& p : points) {
@@ -42,6 +42,9 @@ class Example : public nanovis::NanoVis {
                 return true; // returning false can force repeat to end
             });
             is_first_window = false;
+            set_position(15, 60);
+        } else {
+            set_position(530, 60);
         }
     }
 };

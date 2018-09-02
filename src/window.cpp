@@ -351,6 +351,10 @@ const Eigen::Vector3f &NanoVisWindow::pickup_point() const {
     return viewport_pickup_point;
 }
 
+void NanoVisWindow::set_position(int x, int y) {
+    m_screen->set_position(x, y);
+}
+
 void NanoVisWindow::broadcast(const void *value) {
     if (m_subscribers.count(value) > 0) {
         for (const auto &s : m_subscribers.at(value)) {

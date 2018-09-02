@@ -57,6 +57,8 @@ class NanoVisWindow {
 
     const Eigen::Vector3f &pickup_point() const;
 
+    void set_position(int x, int y);
+
   protected:
     nanogui::AdvancedGridLayout *layout(const std::string &title);
     virtual void draw();

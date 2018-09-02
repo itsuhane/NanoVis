@@ -59,6 +59,10 @@ bool NanoVisScreen::scrollEvent(const Vector2i &p, const Vector2f &rel) {
     return window->mouseScrollEvent(p, rel);
 }
 
+void NanoVisScreen::set_position(int x, int y) {
+    glfwSetWindowPos(mGLFWWindow, x, y);
+}
+
 void NanoVisScreen::notifyAllJobs() {
     double current_refresh_time = glfwGetTime();
     int time_elapsed_ms = (int)(1000 * (current_refresh_time - last_refresh_time));

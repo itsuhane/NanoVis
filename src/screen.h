@@ -26,6 +26,8 @@ class NanoVisScreen : public nanogui::Screen {
     bool mouseEnterEvent(const nanogui::Vector2i &p, bool enter) override;
     bool scrollEvent(const nanogui::Vector2i &p, const nanogui::Vector2f &rel) override;
 
+    void set_position(int x, int y);
+
   private:
     NanoVisWindow *window;
     double last_refresh_time = 0;

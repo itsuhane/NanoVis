@@ -46,6 +46,8 @@ class NanoVis {
     Eigen::Matrix4f model_view_proj() const;
     float world_scale() const;
 
+    void set_position(int x, int y);
+
   protected:
     virtual void draw();
 

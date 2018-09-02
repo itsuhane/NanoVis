@@ -294,6 +294,10 @@ float NanoVis::world_scale() const {
     return impl->window->world_scale();
 }
 
+void NanoVis::set_position(int x, int y) {
+    impl->window->set_position(x, y);
+}
+
 void NanoVis::draw() {
 }
 
