@@ -22,6 +22,17 @@ NanoVisWindow::~NanoVisWindow() = default;
 void NanoVisWindow::show() {
     m_screen->setVisible(true);
     m_screen->performLayout();
+    nanogui::Vector2i lt(0, 0);
+    int lcol = 0;
+    for (const auto &p : m_panels) {
+        if (lt.y() + p.second->height() >= height()) {
+            lt.x() = lcol;
+            lt.y() = 0;
+        }
+        p.second->setPosition(lt);
+        lt.y() += 10 + p.second->height();
+        lcol = std::max(lcol, lt.x() + 10 + p.second->width());
+    }
     refresh();
 }
 
