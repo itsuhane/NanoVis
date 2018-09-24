@@ -42,9 +42,9 @@ target_include_directories(
     PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    PRIVATE
         ${NANOGUI_EXTRA_INCS}
         ${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui/include
+    PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
