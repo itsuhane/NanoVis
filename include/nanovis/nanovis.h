@@ -27,13 +27,16 @@ class NanoVis {
 
     void add_repeat(const std::string &title, const std::string &name, const std::function<bool()> &callback = {});
 
-    void add_graph(const std::string &title, const std::string &name, double &value, const double &max_value, const double &min_value);
-    void add_graph(const std::string &title, const std::string &name, std::vector<double> &values, const double &max_value, const double &min_value);
+    void add_graph(const std::string &title, const std::string &name, const double &value, const double &max_value, const double &min_value, const Eigen::Vector3d &color = {0.6, 0.5, 0.0});
+    void add_graph(const std::string &title, const std::string &name, const std::vector<double> &values, const double &max_value, const double &min_value, const Eigen::Vector3d &color = {0.6, 0.5, 0.0});
 
-    void add_image(const std::string &title, const std::string &name, cv::Mat &image);
+    void add_image(const std::string &title, const std::string &name, const cv::Mat &image);
 
-    void add_point_cloud(std::vector<Eigen::Vector3f> &points);
-    void add_line_strip(std::vector<Eigen::Vector3f> &vertices);
+    void add_points(const std::vector<Eigen::Vector3d> &points, const Eigen::Vector3d &color = {1.0, 1.0, 0.0});
+    void add_points(const std::vector<Eigen::Vector3d> &points, const std::vector<Eigen::Vector3d> &colors);
+
+    void add_path(const std::vector<Eigen::Vector3d> &vertices, const Eigen::Vector3d &color = {1.0, 1.0, 0.0});
+    void add_path(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &colors);
 
     template <typename T>
     void notify(const T &value) {
@@ -57,6 +60,6 @@ class NanoVis {
     friend class NanoVisSystem;
 };
 
-void main(int interval = 50);
+void main(int interval = 1);
 
 } // namespace nanovis

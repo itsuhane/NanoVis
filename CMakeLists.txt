@@ -4,6 +4,8 @@ project(nanovis VERSION 0.1.0 LANGUAGES CXX)
 find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(OpenCV REQUIRED)
 
+add_definitions(-DGL_SILENCE_DEPRECATION)
+
 # configuring nanogui
 if (NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui/src")
   message(FATAL_ERROR "NanoGUI submodule is missing! "

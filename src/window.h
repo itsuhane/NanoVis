@@ -20,17 +20,17 @@ class NanoVisWindow {
     int width() const;
     int height() const;
 
-    void add_button(const std::string &title, const std::string &name, const std::function<void()> &callback = {});
+    void add_button(const std::string &title, const std::string &name, const std::function<void()> &callback);
 
-    void add_toggle(const std::string &title, const std::string &name, const std::function<void(bool)> &callback = {});
-    void add_toggle(const std::string &title, const std::string &name, bool &value, const std::function<void(bool)> &callback = {});
+    void add_toggle(const std::string &title, const std::string &name, const std::function<void(bool)> &callback);
+    void add_toggle(const std::string &title, const std::string &name, bool &value, const std::function<void(bool)> &callback);
 
-    void add_repeat(const std::string &title, const std::string &name, const std::function<bool()> &callback = {});
+    void add_repeat(const std::string &title, const std::string &name, const std::function<bool()> &callback);
 
-    void add_graph(const std::string &title, const std::string &name, double &value, const double &max_value, const double &min_value);
-    void add_graph(const std::string &title, const std::string &name, std::vector<double> &values, const double &max_value, const double &min_value);
+    void add_graph(const std::string &title, const std::string &name, const double &value, const double &max_value, const double &min_value, const Eigen::Vector3d &color);
+    void add_graph(const std::string &title, const std::string &name, const std::vector<double> &values, const double &max_value, const double &min_value, const Eigen::Vector3d &color);
 
-    void add_image(const std::string &title, const std::string &name, cv::Mat &image);
+    void add_image(const std::string &title, const std::string &name, const cv::Mat &image);
 
     void add_widget(const std::string &title, nanogui::Widget *widget);
     void add_widget(const std::string &title, nanogui::Widget *widget_left, nanogui::Widget *widget_right);

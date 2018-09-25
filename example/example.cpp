@@ -4,7 +4,7 @@ double shared_value = 0.5;
 
 class Example : public nanovis::NanoVis {
     double value;
-    std::vector<Eigen::Vector3f> points;
+    std::vector<Eigen::Vector3d> points;
 
   public:
     Example() :
@@ -16,8 +16,8 @@ class Example : public nanovis::NanoVis {
             double a = 10.0;
             double b = 28.0;
             double c = 8.0 / 3.0;
-            Eigen::Vector3f x0 = {0.1, 0.0, 0.0};
-            Eigen::Vector3f x1;
+            Eigen::Vector3d x0 = {0.1, 0.0, 0.0};
+            Eigen::Vector3d x1;
             for (size_t i = 0; i < points.size(); ++i) {
                 x1.x() = x0.x() + h * a * (x0.y() - x0.x());
                 x1.y() = x0.y() + h * (x0.x() * (b - x0.z()) - x0.y());
@@ -29,7 +29,7 @@ class Example : public nanovis::NanoVis {
 
         add_graph("Panel B", "value", value, 1.0, 0.0);
         add_graph("Panel B", "shared value", shared_value, 1.0, 0.0);
-        add_point_cloud(points);
+        add_path(points);
 
         add_button("Panel A", "Button A", [this]() {
             value = 3.772 * value * (1 - value); // generate some chaos by logistic map
@@ -46,8 +46,8 @@ class Example : public nanovis::NanoVis {
             double a = 10.0;
             double b = 28.0;
             double c = 8.0 / 3.0;
-            const Eigen::Vector3f x0 = points.back() * 10;
-            Eigen::Vector3f x1;
+            const Eigen::Vector3d x0 = points.back() * 10;
+            Eigen::Vector3d x1;
             x1.x() = x0.x() + h * a * (x0.y() - x0.x());
             x1.y() = x0.y() + h * (x0.x() * (b - x0.z()) - x0.y());
             x1.z() = x0.z() + h * (x0.x() * x0.y() - c * x0.z());

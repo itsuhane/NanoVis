@@ -47,11 +47,6 @@ class NanoVisSystem {
 #define glsl_code(str) "#version 330\n" #str
 
 struct NanoVis::NanoVisImpl {
-    struct VcPointCloud {
-        Eigen::Matrix<float, 3, Eigen::Dynamic> points;
-        Eigen::Matrix<float, 3, Eigen::Dynamic> colors;
-    };
-
     class Bridge : public NanoVisWindow {
       public:
         Bridge(NanoVis *vis, const std::string &title, int width, int height) :
@@ -76,17 +71,8 @@ struct NanoVis::NanoVisImpl {
             create_world_frame();
         }
 
-        void add_point_cloud(std::vector<Eigen::Vector3f> &points) {
-            point_clouds[&points] = {};
-            add_variable(points, [this, &points]() {
-                VcPointCloud &vcpcl = point_clouds.at(&points);
-                vcpcl.points.resize(3, points.size());
-                vcpcl.colors.resize(3, points.size());
-                for (size_t i = 0; i < points.size(); ++i) {
-                    vcpcl.points.col(i) = points[i];
-                    vcpcl.colors.col(i) = Eigen::Vector3f(1.0, 1.0, 0.0);
-                }
-            });
+        void add_renderer(std::function<void(nanogui::GLShader&)> renderer) {
+            renderers.emplace_back(renderer);
         }
 
       protected:
@@ -161,7 +147,7 @@ struct NanoVis::NanoVisImpl {
             draw_world_frame();
             draw_pickup_point();
             shader.setUniform("scale", world_scale());
-            draw_point_clouds();
+            for(auto &r : renderers) r(shader);
             vis->draw();
         }
 
@@ -196,22 +182,11 @@ struct NanoVis::NanoVisImpl {
             shader.drawArray(GL_LINES, 0, cursor_points.cols());
         }
 
-        void draw_point_clouds() {
-            glPointSize(5.0);
-            for (const auto &vcpcl : point_clouds) {
-                if (vcpcl.second.points.cols() > 0) {
-                    shader.uploadAttrib("point", vcpcl.second.points);
-                    shader.uploadAttrib("color", vcpcl.second.colors);
-                    shader.drawArray(GL_POINTS, 0, vcpcl.second.points.cols());
-                }
-            }
-        }
-
         NanoVis *vis;
         nanogui::GLShader shader;
         Eigen::Matrix<float, 3, Eigen::Dynamic> world_box_points;
         Eigen::Matrix<float, 3, Eigen::Dynamic> world_box_colors;
-        std::unordered_map<std::vector<Eigen::Vector3f> *, VcPointCloud> point_clouds;
+        std::vector<std::function<void(nanogui::GLShader&)>> renderers;
     };
     std::unique_ptr<Bridge> window;
 };
@@ -258,20 +233,92 @@ void NanoVis::add_repeat(const std::string &title, const std::string &name, cons
     impl->window->add_repeat(title, name, callback);
 }
 
-void NanoVis::add_graph(const std::string &title, const std::string &name, double &value, const double &max_value, const double &min_value) {
-    impl->window->add_graph(title, name, value, max_value, min_value);
+void NanoVis::add_graph(const std::string &title, const std::string &name, const double &value, const double &max_value, const double &min_value, const Eigen::Vector3d &color) {
+    impl->window->add_graph(title, name, value, max_value, min_value, color);
 }
 
-void NanoVis::add_graph(const std::string &title, const std::string &name, std::vector<double> &values, const double &max_value, const double &min_value) {
-    impl->window->add_graph(title, name, values, max_value, min_value);
+void NanoVis::add_graph(const std::string &title, const std::string &name, const std::vector<double> &values, const double &max_value, const double &min_value, const Eigen::Vector3d &color) {
+    impl->window->add_graph(title, name, values, max_value, min_value, color);
 }
 
-void NanoVis::add_image(const std::string &title, const std::string &name, cv::Mat &image) {
+void NanoVis::add_image(const std::string &title, const std::string &name, const cv::Mat &image) {
     impl->window->add_image(title, name, image);
 }
 
-void NanoVis::add_point_cloud(std::vector<Eigen::Vector3f> &points) {
-    impl->window->add_point_cloud(points);
+void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const Eigen::Vector3d &color) {
+    auto renderer = [&points, color](nanogui::GLShader &shader) {
+        if(points.size() > 0) {
+            Eigen::MatrixXf dpoints;
+            Eigen::MatrixXf dcolors;
+            dpoints.resize(3, points.size());
+            dcolors.resize(3, points.size());
+            for (int i = 0; i < (int)points.size(); ++i) {
+                dpoints.col(i) = points[i].cast<float>();
+                dcolors.col(i) = color.cast<float>();
+            }
+            shader.uploadAttrib("point", dpoints);
+            shader.uploadAttrib("color", dcolors);
+            shader.drawArray(GL_POINTS, 0, dpoints.cols());
+        }
+    };
+    impl->window->add_renderer(renderer);
+}
+
+void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const std::vector<Eigen::Vector3d> &colors) {
+    auto renderer = [&points, &colors](nanogui::GLShader &shader) {
+        if(points.size() > 0) {
+            Eigen::MatrixXf dpoints;
+            Eigen::MatrixXf dcolors;
+            dpoints.resize(3, points.size());
+            dcolors.resize(3, points.size());
+            for (int i = 0; i < (int)points.size(); ++i) {
+                dpoints.col(i) = points[i].cast<float>();
+                dcolors.col(i) = colors[i].cast<float>();
+            }
+            shader.uploadAttrib("point", dpoints);
+            shader.uploadAttrib("color", dcolors);
+            shader.drawArray(GL_POINTS, 0, dpoints.cols());
+        }
+    };
+    impl->window->add_renderer(renderer);
+}
+
+void NanoVis::add_path(const std::vector<Eigen::Vector3d> &vertices, const Eigen::Vector3d &color) {
+    auto renderer = [&vertices, color](nanogui::GLShader &shader) {
+        if(vertices.size() > 0) {
+            Eigen::MatrixXf dpoints;
+            Eigen::MatrixXf dcolors;
+            dpoints.resize(3, vertices.size());
+            dcolors.resize(3, vertices.size());
+            for (int i = 0; i < (int)vertices.size(); ++i) {
+                dpoints.col(i) = vertices[i].cast<float>();
+                dcolors.col(i) = color.cast<float>();
+            }
+            shader.uploadAttrib("point", dpoints);
+            shader.uploadAttrib("color", dcolors);
+            shader.drawArray(GL_LINE_STRIP, 0, dpoints.cols());
+        }
+    };
+    impl->window->add_renderer(renderer);
+}
+
+void NanoVis::add_path(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &colors) {
+    auto renderer = [&vertices, &colors](nanogui::GLShader &shader) {
+        if(vertices.size() > 0) {
+            Eigen::MatrixXf dpoints;
+            Eigen::MatrixXf dcolors;
+            dpoints.resize(3, vertices.size());
+            dcolors.resize(3, vertices.size());
+            for (int i = 0; i < (int)vertices.size(); ++i) {
+                dpoints.col(i) = vertices[i].cast<float>();
+                dcolors.col(i) = colors[i].cast<float>();
+            }
+            shader.uploadAttrib("point", dpoints);
+            shader.uploadAttrib("color", dcolors);
+            shader.drawArray(GL_LINE_STRIP, 0, dpoints.cols());
+        }
+    };
+    impl->window->add_renderer(renderer);
 }
 
 Eigen::Matrix4f NanoVis::proj_matrix(float near, float far) const {

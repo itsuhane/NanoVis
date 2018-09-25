@@ -110,9 +110,9 @@ void NanoVisWindow::add_repeat(const std::string &title, const std::string &name
     add_widget(title, b);
 }
 
-void NanoVisWindow::add_graph(const std::string &title, const std::string &name, double &value, const double &max_value, const double &min_value) {
+void NanoVisWindow::add_graph(const std::string &title, const std::string &name, const double &value, const double &max_value, const double &min_value, const Eigen::Vector3d &color) {
     Graph *g = new Graph(panel(title), name);
-
+    g->setForegroundColor(Eigen::Vector3f(color.cast<float>()));
     VectorXf &f = g->values();
     f.resize(60);
     for (int i = 0; i < f.rows(); ++i) {
@@ -133,9 +133,9 @@ void NanoVisWindow::add_graph(const std::string &title, const std::string &name,
     add_widget(title, g);
 }
 
-void NanoVisWindow::add_graph(const std::string &title, const std::string &name, std::vector<double> &values, const double &max_value, const double &min_value) {
+void NanoVisWindow::add_graph(const std::string &title, const std::string &name, const std::vector<double> &values, const double &max_value, const double &min_value, const Eigen::Vector3d &color) {
     Graph *g = new Graph(panel(title), name);
-
+    g->setForegroundColor(Eigen::Vector3f(color.cast<float>()));
     auto subscriber = [&values, g, max_value, min_value]() {
         VectorXf &f = g->values();
         f.resize(values.size());
@@ -160,7 +160,7 @@ void NanoVisWindow::add_graph(const std::string &title, const std::string &name,
     add_widget(title, g);
 }
 
-void NanoVisWindow::add_image(const std::string &title, const std::string &name, cv::Mat &image) {
+void NanoVisWindow::add_image(const std::string &title, const std::string &name, const cv::Mat &image) {
     GLuint texture_id;
     glGenTextures(1, &texture_id); // well okay I admit that this handle is never released in program.
     ImageView *i = new ImageView(panel(title), texture_id);
@@ -338,10 +338,6 @@ Eigen::Matrix4f NanoVisWindow::world_matrix() const {
 
     return world;
 }
-
-// Eigen::Matrix4f NanoVisWindow::model_view_proj() const {
-//     return proj_matrix() * view_matrix() * world_matrix();
-// }
 
 float NanoVisWindow::world_scale() const {
     return viewport_scale;
