@@ -32,8 +32,8 @@ class NanoVis {
 
     void add_image(const std::string &title, const std::string &name, const cv::Mat &image);
 
-    void add_points(const std::vector<Eigen::Vector3d> &points, const Eigen::Vector3d &color = {1.0, 1.0, 0.0});
-    void add_points(const std::vector<Eigen::Vector3d> &points, const std::vector<Eigen::Vector3d> &colors);
+    void add_points(const std::vector<Eigen::Vector3d> &points, const Eigen::Vector3d &color = {1.0, 1.0, 0.0}, const double &point_size = 3.0);
+    void add_points(const std::vector<Eigen::Vector3d> &points, const std::vector<Eigen::Vector3d> &colors, const double &point_size = 3.0);
 
     void add_path(const std::vector<Eigen::Vector3d> &vertices, const Eigen::Vector3d &color = {1.0, 1.0, 0.0});
     void add_path(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &colors);

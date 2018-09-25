@@ -245,8 +245,8 @@ void NanoVis::add_image(const std::string &title, const std::string &name, const
     impl->window->add_image(title, name, image);
 }
 
-void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const Eigen::Vector3d &color) {
-    auto renderer = [&points, color](nanogui::GLShader &shader) {
+void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const Eigen::Vector3d &color, const double &point_size) {
+    auto renderer = [&points, color, point_size](nanogui::GLShader &shader) {
         if(points.size() > 0) {
             Eigen::MatrixXf dpoints;
             Eigen::MatrixXf dcolors;
@@ -258,14 +258,15 @@ void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const Eigen
             }
             shader.uploadAttrib("point", dpoints);
             shader.uploadAttrib("color", dcolors);
+            glPointSize((float)point_size);
             shader.drawArray(GL_POINTS, 0, dpoints.cols());
         }
     };
     impl->window->add_renderer(renderer);
 }
 
-void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const std::vector<Eigen::Vector3d> &colors) {
-    auto renderer = [&points, &colors](nanogui::GLShader &shader) {
+void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const std::vector<Eigen::Vector3d> &colors, const double &point_size) {
+    auto renderer = [&points, &colors, point_size](nanogui::GLShader &shader) {
         if(points.size() > 0) {
             Eigen::MatrixXf dpoints;
             Eigen::MatrixXf dcolors;
@@ -277,6 +278,7 @@ void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const std::
             }
             shader.uploadAttrib("point", dpoints);
             shader.uploadAttrib("color", dcolors);
+            glPointSize((float)point_size);
             shader.drawArray(GL_POINTS, 0, dpoints.cols());
         }
     };
