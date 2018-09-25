@@ -48,6 +48,12 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+target_compile_definitions(
+    nanovis
+    PUBLIC
+        GL_SILENCE_DEPRECATION
+)
+
 target_link_libraries(
     nanovis
     PUBLIC
