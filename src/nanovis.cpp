@@ -71,7 +71,7 @@ struct NanoVis::NanoVisImpl {
             create_world_frame();
         }
 
-        void add_renderer(std::function<void(nanogui::GLShader&)> renderer) {
+        void add_renderer(std::function<void(nanogui::GLShader &)> renderer) {
             renderers.emplace_back(renderer);
         }
 
@@ -147,7 +147,7 @@ struct NanoVis::NanoVisImpl {
             draw_world_frame();
             draw_pickup_point();
             shader.setUniform("scale", world_scale());
-            for(auto &r : renderers) r(shader);
+            for (auto &r : renderers) r(shader);
             vis->draw();
         }
 
@@ -186,7 +186,7 @@ struct NanoVis::NanoVisImpl {
         nanogui::GLShader shader;
         Eigen::Matrix<float, 3, Eigen::Dynamic> world_box_points;
         Eigen::Matrix<float, 3, Eigen::Dynamic> world_box_colors;
-        std::vector<std::function<void(nanogui::GLShader&)>> renderers;
+        std::vector<std::function<void(nanogui::GLShader &)>> renderers;
     };
     std::unique_ptr<Bridge> window;
 };
@@ -247,7 +247,7 @@ void NanoVis::add_image(const std::string &title, const std::string &name, const
 
 void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const Eigen::Vector3d &color, const double &point_size) {
     auto renderer = [&points, color, point_size](nanogui::GLShader &shader) {
-        if(points.size() > 0) {
+        if (points.size() > 0) {
             Eigen::MatrixXf dpoints;
             Eigen::MatrixXf dcolors;
             dpoints.resize(3, points.size());
@@ -267,7 +267,7 @@ void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const Eigen
 
 void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const std::vector<Eigen::Vector3d> &colors, const double &point_size) {
     auto renderer = [&points, &colors, point_size](nanogui::GLShader &shader) {
-        if(points.size() > 0) {
+        if (points.size() > 0) {
             Eigen::MatrixXf dpoints;
             Eigen::MatrixXf dcolors;
             dpoints.resize(3, points.size());
@@ -287,7 +287,7 @@ void NanoVis::add_points(const std::vector<Eigen::Vector3d> &points, const std::
 
 void NanoVis::add_path(const std::vector<Eigen::Vector3d> &vertices, const Eigen::Vector3d &color) {
     auto renderer = [&vertices, color](nanogui::GLShader &shader) {
-        if(vertices.size() > 0) {
+        if (vertices.size() > 0) {
             Eigen::MatrixXf dpoints;
             Eigen::MatrixXf dcolors;
             dpoints.resize(3, vertices.size());
@@ -306,7 +306,7 @@ void NanoVis::add_path(const std::vector<Eigen::Vector3d> &vertices, const Eigen
 
 void NanoVis::add_path(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &colors) {
     auto renderer = [&vertices, &colors](nanogui::GLShader &shader) {
-        if(vertices.size() > 0) {
+        if (vertices.size() > 0) {
             Eigen::MatrixXf dpoints;
             Eigen::MatrixXf dcolors;
             dpoints.resize(3, vertices.size());
@@ -321,6 +321,10 @@ void NanoVis::add_path(const std::vector<Eigen::Vector3d> &vertices, const std::
         }
     };
     impl->window->add_renderer(renderer);
+}
+
+void NanoVis::set_timeout(int refresh, const std::function<bool()> &callback) {
+    impl->window->set_timeout(refresh, callback);
 }
 
 Eigen::Matrix4f NanoVis::proj_matrix(float near, float far) const {

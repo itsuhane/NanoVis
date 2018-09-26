@@ -38,6 +38,8 @@ class NanoVis {
     void add_path(const std::vector<Eigen::Vector3d> &vertices, const Eigen::Vector3d &color = {1.0, 1.0, 0.0});
     void add_path(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &colors);
 
+    void set_timeout(int refresh, const std::function<bool()> &callback = {});
+
     template <typename T>
     void notify(const T &value) {
         broadcast((const void *)(&value));

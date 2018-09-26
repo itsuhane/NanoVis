@@ -35,6 +35,8 @@ class NanoVisWindow {
     void add_widget(const std::string &title, nanogui::Widget *widget);
     void add_widget(const std::string &title, nanogui::Widget *widget_left, nanogui::Widget *widget_right);
 
+    void set_timeout(int refresh, const std::function<bool()> &callback);
+
     nanogui::Window *panel(const std::string &title);
 
     template <typename T>

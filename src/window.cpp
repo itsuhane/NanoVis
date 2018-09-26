@@ -2,7 +2,7 @@
 #include "screen.h"
 
 #if defined(__GNUC__) || defined(__clang__)
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
 using namespace nanogui;
@@ -212,6 +212,12 @@ void NanoVisWindow::add_widget(const std::string &title, Widget *widget_left, Wi
     }
     if (widget_right) {
         l->setAnchor(widget_right, AdvancedGridLayout::Anchor(2, l->rowCount() - 1, 1, 1));
+    }
+}
+
+void NanoVisWindow::set_timeout(int refresh, const std::function<bool()> &callback) {
+    if (callback) {
+        m_screen->setInterval(callback, refresh);
     }
 }
 
