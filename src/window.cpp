@@ -281,7 +281,17 @@ bool NanoVisWindow::mouseButtonEvent(const Vector2i &p, int button, bool down, i
 bool NanoVisWindow::mouseMotionEvent(const Vector2i &p, const Vector2i &rel, int button, int modifiers) {
     Eigen::Vector2f delta = (p - viewport_cursor_old).cast<float>() * 0.1;
     if (viewport_rotation_mode) {
-        viewport_ryp.segment<2>(1) = viewport_ryp_old.segment<2>(1) + delta;
+        Eigen::Matrix3f R_old = Eigen::Matrix3f::Identity();
+        R_old = Eigen::AngleAxisf(viewport_ryp_old[0] * M_PI / 180.0f, Eigen::Vector3f::UnitY()) * R_old;
+        R_old = Eigen::AngleAxisf(viewport_ryp_old[2] * M_PI / 180.0f, Eigen::Vector3f::UnitX()) * R_old;
+        R_old = Eigen::AngleAxisf(viewport_ryp_old[1] * M_PI / 180.0f, Eigen::Vector3f::UnitZ()) * R_old;
+        Eigen::Vector3f v_old = R_old.transpose() * (viewport_pickup_point - viewport_xyz_old);
+        viewport_ryp.segment<2>(1) = viewport_ryp_old.segment<2>(1) - 3 * delta;
+        Eigen::Matrix3f R_new = Eigen::Matrix3f::Identity();
+        R_new = Eigen::AngleAxisf(viewport_ryp[0] * M_PI / 180.0f, Eigen::Vector3f::UnitY()) * R_new;
+        R_new = Eigen::AngleAxisf(viewport_ryp[2] * M_PI / 180.0f, Eigen::Vector3f::UnitX()) * R_new;
+        R_new = Eigen::AngleAxisf(viewport_ryp[1] * M_PI / 180.0f, Eigen::Vector3f::UnitZ()) * R_new;
+        viewport_xyz = viewport_pickup_point - R_new * v_old;
     } else if (viewport_translation_mode) {
         Eigen::Matrix3f world_view_dcm = (view_matrix() * world_matrix()).block<3, 3>(0, 0).transpose();
         Eigen::Vector3f pos = viewport_xyz_old;
