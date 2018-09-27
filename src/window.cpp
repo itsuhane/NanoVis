@@ -296,7 +296,8 @@ bool NanoVisWindow::mouseMotionEvent(const Vector2i &p, const Vector2i &rel, int
         Eigen::Matrix3f world_view_dcm = (view_matrix() * world_matrix()).block<3, 3>(0, 0).transpose();
         Eigen::Vector3f pos = viewport_xyz_old;
         if (modifiers == 0) {
-            pos = viewport_xyz_old - world_view_dcm.block<3, 2>(0, 0) * delta;
+            float depth = (view_matrix() * world_matrix() * viewport_pickup_point.homogeneous()).hnormalized().z();
+            pos = viewport_xyz_old - world_view_dcm.block<3, 2>(0, 0) * delta * depth * 10 / height();
         } else if (modifiers == 1) {
             Eigen::Vector3f dz = world_view_dcm.col(2);
             dz.z() = 0;

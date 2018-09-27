@@ -40,6 +40,9 @@ class NanoVis {
 
     void set_timeout(int refresh, const std::function<bool()> &callback = {});
 
+    void set_grid_visible(bool visible);
+    void set_camera(const Eigen::Vector3d &position, double roll, double yaw, double pitch);
+
     template <typename T>
     void notify(const T &value) {
         broadcast((const void *)(&value));

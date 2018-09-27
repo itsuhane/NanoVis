@@ -50,7 +50,7 @@ struct NanoVis::NanoVisImpl {
     class Bridge : public NanoVisWindow {
       public:
         Bridge(NanoVis *vis, const std::string &title, int width, int height) :
-            NanoVisWindow(title, width, height), vis(vis) {
+            NanoVisWindow(title, width, height), vis(vis), grid_visible(true) {
             shader.init("vc_shader",
                         glsl_code(
                             uniform mat4 model_view_proj;
@@ -73,6 +73,10 @@ struct NanoVis::NanoVisImpl {
 
         void add_renderer(std::function<void(nanogui::GLShader &)> renderer) {
             renderers.emplace_back(renderer);
+        }
+
+        void set_grid_visible(bool visible) {
+            grid_visible = visible;
         }
 
       protected:
@@ -144,8 +148,10 @@ struct NanoVis::NanoVisImpl {
             shader.setUniform("model_view_proj", mvpmat);
             shader.setUniform("scale", 1.0);
             glEnable(GL_DEPTH_TEST);
-            draw_world_frame();
-            draw_pickup_point();
+            if (grid_visible) {
+                draw_world_frame();
+                draw_pickup_point();
+            }
             shader.setUniform("scale", world_scale());
             for (auto &r : renderers) r(shader);
             vis->draw();
@@ -187,6 +193,7 @@ struct NanoVis::NanoVisImpl {
         Eigen::Matrix<float, 3, Eigen::Dynamic> world_box_points;
         Eigen::Matrix<float, 3, Eigen::Dynamic> world_box_colors;
         std::vector<std::function<void(nanogui::GLShader &)>> renderers;
+        bool grid_visible;
     };
     std::unique_ptr<Bridge> window;
 };
@@ -325,6 +332,14 @@ void NanoVis::add_path(const std::vector<Eigen::Vector3d> &vertices, const std::
 
 void NanoVis::set_timeout(int refresh, const std::function<bool()> &callback) {
     impl->window->set_timeout(refresh, callback);
+}
+
+void NanoVis::set_grid_visible(bool visible) {
+    impl->window->set_grid_visible(visible);
+}
+
+void NanoVis::set_camera(const Eigen::Vector3d &position, double roll, double yaw, double pitch) {
+    impl->window->set_camera(position.cast<float>(), (float)roll, (float)yaw, (float)pitch);
 }
 
 Eigen::Matrix4f NanoVis::proj_matrix(float near, float far) const {

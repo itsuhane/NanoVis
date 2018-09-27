@@ -36,6 +36,10 @@ class NanoVisWindow {
     void add_widget(const std::string &title, nanogui::Widget *widget_left, nanogui::Widget *widget_right);
 
     void set_timeout(int refresh, const std::function<bool()> &callback);
+    void set_camera(const Eigen::Vector3f &position, float roll, float yaw, float pitch) {
+        viewport_xyz = position;
+        viewport_ryp = {roll, yaw, pitch};
+    }
 
     nanogui::Window *panel(const std::string &title);
 
